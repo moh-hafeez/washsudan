@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudan WASH Access Report &ndash; MSNA July 2026</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Design plan
+   Layout: stacked report — teal hero with coverage tiles, then a
+   sequence of full-width card sections (ladders / HWISE-4 / coping /
+   barriers), each with a condensed teal header and CSS bar charts
+   that lay out with flex so they reflow to one column on phones.
+   ============================================================ */
+:root{
+  --bg:#F5F8F8;
+  --surface:#FFFFFF;
+  --surface-alt:#EEF4F4;
+  --ink:#20282A;
+  --ink-muted:#5B6568;
+  --ink-faint:#889093;
+  --line:#DCE6E6;
+  --accent:#009999;
+  --accent-ink:#FFFFFF;
+  --water:#1E8FBE;
+  --sanitation:#532F87;
+  --hygiene:#00814A;
+  --coral:#D6544B;
+  --track:#E4EDED;
+  --shadow:0 1px 2px rgba(16,40,40,.06), 0 6px 20px rgba(16,40,40,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1515;
+    --surface:#152020;
+    --surface-alt:#1B2828;
+    --ink:#ECF3F3;
+    --ink-muted:#A9B8B8;
+    --ink-faint:#748484;
+    --line:#253535;
+    --accent:#3FC7C7;
+    --accent-ink:#08201F;
+    --water:#5BB7E0;
+    --sanitation:#B79BE0;
+    --hygiene:#4FCB8E;
+    --coral:#F0897E;
+    --track:#233232;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1515;
+  --surface:#152020;
+  --surface-alt:#1B2828;
+  --ink:#ECF3F3;
+  --ink-muted:#A9B8B8;
+  --ink-faint:#748484;
+  --line:#253535;
+  --accent:#3FC7C7;
+  --accent-ink:#08201F;
+  --water:#5BB7E0;
+  --sanitation:#B79BE0;
+  --hygiene:#4FCB8E;
+  --coral:#F0897E;
+  --track:#233232;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Barlow','Helvetica Neue',Arial,sans-serif;
+  padding:0 0 4rem 0;
+}
+h1,h2,h3,.disp{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  font-weight:700;
+  text-wrap:balance;
+  margin:0;
+}
+p{margin:0;}
+.tabular{font-variant-numeric:tabular-nums;}
+
+.wrap{
+  max-width:1040px;
+  margin:0 auto;
+  padding:0 20px;
+}
+
+/* ---------- hero ---------- */
+.hero{
+  background:linear-gradient(160deg,var(--accent) 0%, #017878 100%);
+  color:#fff;
+  padding:2.6rem 0 2.2rem;
+}
+.hero__top{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  margin-bottom:1.6rem;
+}
+.hero__logo{height:46px; width:auto; display:block; filter:drop-shadow(0 1px 3px rgba(0,0,0,.15));}
+.hero__eyebrow{
+  font-family:'Barlow Condensed',sans-serif; font-weight:700; letter-spacing:.14em;
+  font-size:.78rem; text-transform:uppercase; opacity:.92;
+}
+.hero h1{
+  font-size:clamp(1.9rem, 4.4vw, 2.9rem);
+  line-height:1.06;
+  max-width:19ch;
+  margin-top:.5rem;
+}
+.hero__sub{
+  margin-top:.9rem; max-width:62ch; font-size:1.02rem; line-height:1.5; color:rgba(255,255,255,.92);
+}
+.hero__tiles{
+  margin-top:1.8rem; display:flex; gap:.7rem; flex-wrap:wrap;
+}
+.tile{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:10px;
+  padding:.85rem .95rem;
+  min-width:130px;
+  flex:1 1 130px;
+}
+.tile__value{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1.9rem; line-height:1;}
+.tile__label{font-size:.76rem; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.82); margin-top:.3rem;}
+
+/* ---------- nav ---------- */
+.jumpnav{
+  position:sticky; top:env(safe-area-inset-top,0px);
+  background:var(--surface); border-bottom:1px solid var(--line);
+  z-index:5;
+}
+.jumpnav__row{
+  display:flex; gap:1.4rem; overflow-x:auto; padding:.7rem 20px;
+  max-width:1040px; margin:0 auto;
+  scrollbar-width:none;
+}
+.jumpnav__row::-webkit-scrollbar{display:none;}
+.jumpnav a{
+  color:var(--ink-muted); text-decoration:none; font-size:.86rem; font-weight:600;
+  white-space:nowrap; padding:.2rem 0; border-bottom:2px solid transparent;
+}
+.jumpnav a:hover{color:var(--accent); border-color:var(--accent);}
+
+/* ---------- filter bar ---------- */
+.filterbar{
+  border-top:1px solid var(--line);
+  padding:.6rem 20px .7rem;
+  max-width:1040px; margin:0 auto;
+  display:flex; flex-direction:column; gap:.5rem;
+}
+.filterbar__controls{display:flex; flex-wrap:wrap; gap:.5rem; align-items:flex-start;}
+.filterbar__status{font-size:.78rem; color:var(--ink-faint); display:flex; align-items:center; gap:.8rem;}
+.fbtn-wrap{position:relative;}
+.fbtn{
+  font-family:inherit; font-size:.8rem; font-weight:600; color:var(--ink);
+  background:var(--surface-alt); border:1px solid var(--line); border-radius:8px;
+  padding:.4rem .7rem; cursor:pointer; display:flex; align-items:center; gap:.4rem;
+  white-space:nowrap;
+}
+.fbtn:hover{border-color:var(--accent);}
+.fbtn.active{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+.fbtn__count{
+  background:rgba(0,0,0,.14); border-radius:99px; font-size:.72rem; padding:.05rem .4rem; line-height:1.3;
+}
+.fbtn.active .fbtn__count{background:rgba(255,255,255,.3);}
+.fbtn__caret{font-size:.65rem; opacity:.7;}
+.fselect-wrap{position:relative; display:inline-flex;}
+.fselect{
+  font-family:inherit; font-size:.8rem; font-weight:600; color:var(--ink);
+  background:var(--surface-alt); border:1px solid var(--line); border-radius:8px;
+  padding:.4rem 1.7rem .4rem .7rem; cursor:pointer; white-space:nowrap;
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  max-width:220px; text-overflow:ellipsis;
+}
+.fselect-wrap::after{
+  content:'▾'; position:absolute; right:.6rem; top:50%; transform:translateY(-50%);
+  font-size:.65rem; opacity:.7; pointer-events:none; color:var(--ink);
+}
+.fselect:hover{border-color:var(--accent);}
+.fselect.active{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+.fselect.active + .fselect-wrap::after, .fselect-wrap:has(.fselect.active)::after{color:var(--accent-ink);}
+.fbtn--reset{
+  background:none; border:1px solid var(--line); color:var(--ink-muted); font-size:.75rem;
+  padding:.25rem .6rem; border-radius:6px; cursor:pointer;
+}
+.fbtn--reset:hover{border-color:var(--coral); color:var(--coral);}
+.fpanel{
+  display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30;
+  width:250px; max-height:320px; overflow-y:auto;
+  background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  box-shadow:var(--shadow); padding:.55rem;
+}
+.fpanel.open{display:block;}
+.fpanel__search{
+  width:100%; box-sizing:border-box; font-family:inherit; font-size:.82rem;
+  padding:.35rem .5rem; border:1px solid var(--line); border-radius:6px;
+  margin-bottom:.4rem; background:var(--bg); color:var(--ink);
+}
+.fpanel__actions{display:flex; justify-content:space-between; margin-bottom:.35rem;}
+.fpanel__actions button{
+  font-family:inherit; font-size:.72rem; color:var(--accent); background:none; border:none;
+  cursor:pointer; padding:0;
+}
+.fopt{
+  display:flex; align-items:center; gap:.5rem; padding:.28rem .2rem; font-size:.83rem;
+  color:var(--ink); border-radius:5px; cursor:pointer;
+}
+.fopt:hover{background:var(--surface-alt);}
+.fopt input{flex:0 0 auto; margin:0;}
+.fopt__n{margin-left:auto; color:var(--ink-faint); font-size:.74rem;}
+.fopt__empty{color:var(--ink-faint); font-size:.8rem; padding:.4rem .2rem;}
+@media (max-width:600px){
+  .fpanel{width:min(280px, calc(100vw - 40px));}
+}
+
+/* ---------- sections ---------- */
+section{padding-top:2.6rem;}
+.section__head{margin-bottom:1.3rem;}
+.section__eyebrow{
+  color:var(--accent); font-weight:700; letter-spacing:.1em; text-transform:uppercase; font-size:.76rem;
+}
+.section__title{font-size:1.6rem; margin-top:.2rem;}
+.section__note{color:var(--ink-muted); font-size:.94rem; margin-top:.4rem; max-width:74ch; line-height:1.5;}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:1.5rem 1.6rem 1.7rem;
+}
+.card + .card{margin-top:1rem;}
+.card__title{font-size:1.05rem; color:var(--ink);}
+.card__meta{color:var(--ink-faint); font-size:.82rem; margin-top:.15rem;}
+.tabs{display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin-top:.6rem;}
+.tab{
+  font-family:inherit; font-size:.8rem; font-weight:600; color:var(--ink-muted);
+  background:var(--surface-alt); border:1px solid var(--line); border-radius:8px;
+  padding:.4rem .75rem; cursor:pointer;
+}
+.tab:hover{color:var(--ink); border-color:var(--accent);}
+.tab.active{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+.barlist--scroll{max-height:460px; overflow-y:auto; padding-right:6px;}
+.chart-search{
+  box-sizing:border-box; width:200px; max-width:100%;
+  font-family:inherit; font-size:.8rem; font-weight:600; color:var(--ink);
+  padding:.4rem .7rem; margin-left:auto;
+  border:1px solid var(--line); border-radius:8px; background:var(--surface-alt);
+}
+.chart-search:hover{border-color:var(--accent);}
+.chart-search:focus{outline:none; border-color:var(--accent); background:var(--surface);}
+.chart-search::placeholder{color:var(--ink-faint); font-weight:600;}
+@media (max-width:520px){
+  .chart-search{width:100%; margin-left:0;}
+}
+.callout{
+  margin-top:1.1rem; padding:.85rem 1rem;
+  background:var(--surface-alt); border-left:3px solid var(--accent);
+  border-radius:6px; color:var(--ink-muted); font-size:.88rem; line-height:1.55;
+}
+.callout strong{color:var(--ink);}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;}
+@media (max-width:760px){
+  .grid2, .grid3{grid-template-columns:1fr;}
+}
+
+/* ---------- bar chart (css) ---------- */
+.barlist{display:flex; flex-direction:column; gap:.62rem; margin-top:1rem;}
+.barrow{display:flex; align-items:center; gap:.7rem;}
+.barrow--clickable{cursor:pointer; border-radius:6px; padding:.15rem .3rem; margin:-.15rem -.3rem; transition:background .1s;}
+.barrow--clickable:hover{background:var(--surface-alt);}
+.barrow--clickable:hover .barrow__label{color:var(--accent);}
+.barrow--clickable:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.barrow--active .barrow__label{color:var(--accent); font-weight:700;}
+.barrow--active .barrow__track{box-shadow:0 0 0 2px var(--accent) inset;}
+.barrow__label{
+  flex:0 0 auto; width:var(--label-w, 168px); font-size:.84rem; color:var(--ink);
+  line-height:1.25; text-align:right;
+}
+.barrow__track{
+  flex:1 1 auto; min-width:0; background:var(--track); border-radius:5px; height:20px; position:relative;
+}
+.barrow__fill{
+  height:100%; border-radius:5px; min-width:3px;
+}
+.barrow__value{
+  flex:0 0 auto; width:56px; font-size:.84rem; font-weight:700; color:var(--ink);
+}
+
+/* ---------- stacked bar ---------- */
+.stack{margin-top:1.1rem;}
+.stack__row{display:flex; align-items:center; gap:.8rem; margin-bottom:.55rem;}
+.stack__label{flex:0 0 var(--label-w, 128px); font-size:.86rem; font-weight:600; color:var(--ink); text-align:right;}
+.stack__track{
+  flex:1 1 auto; min-width:0; display:flex; height:34px; border-radius:7px; overflow:hidden;
+  background:var(--track);
+}
+.stack__seg{
+  height:100%; display:flex; align-items:center; justify-content:center;
+  font-size:.78rem; font-weight:700; color:#fff; min-width:0;
+}
+.stack__seg span{padding:0 4px; white-space:nowrap; overflow:hidden; text-overflow:clip;}
+.legend{display:flex; flex-wrap:wrap; gap:.9rem 1.3rem; margin-top:.9rem;}
+.legend__item{display:flex; align-items:center; gap:.45rem; font-size:.82rem; color:var(--ink-muted);}
+.legend__swatch{width:12px; height:12px; border-radius:3px; flex:0 0 auto;}
+
+/* ---------- footer ---------- */
+footer{
+  margin-top:3rem; padding-top:1.6rem; border-top:1px solid var(--line);
+  color:var(--ink-faint); font-size:.82rem; line-height:1.6;
+}
+footer strong{color:var(--ink-muted);}
+
+@media (max-width:600px){
+  .barrow__label{width:118px; font-size:.78rem;}
+  .stack__label{flex-basis:var(--label-w-sm, 92px); font-size:.78rem;}
+  .barrow__value{width:46px;}
+}
+</style>
+</head>
+<body>
+
+
+<div class="hero">
+  <div class="wrap">
+    <div class="hero__top">
+      <div>
+        <div class="hero__eyebrow">Sudan WASH Sector &middot; MSNA, July 2026</div>
+        <h1>Access to Water, Sanitation &amp; Hygiene in Sudan</h1>
+      </div>
+      <img class="hero__logo" alt="WASH Sector Sudan" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAACaCAYAAABYMaZEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEV[...]
+    </div>
+    <p class="hero__sub">Service levels, water insecurity, coping strategies and access barriers reported directly by surveyed households. This is a summary of the MSNA analysis results produced by th[...]
+    <div class="hero__tiles">
+      <div class="tile"><div class="tile__value tabular">23,736</div><div class="tile__label">Households surveyed</div></div>
+      <div class="tile"><div class="tile__value tabular">41.2%</div><div class="tile__label">Lack basic water access (JMP)</div></div>
+      <div class="tile"><div class="tile__value tabular">53.7%</div><div class="tile__label">Lack even limited sanitation access (JMP)</div></div>
+      <div class="tile"><div class="tile__value tabular">46.8%</div><div class="tile__label">Lack basic hygiene access (JMP)</div></div>
+      <div class="tile"><div class="tile__value tabular">67.0%</div><div class="tile__label">Experienced water insecurity in the past month</div></div>
+    </div>
+  </div>
+</div>
+
+<nav class="jumpnav">
+  <div class="jumpnav__row">
+    <a href="#coverage">Coverage</a>
+    <a href="#ladders">Service ladders</a>
+    <a href="#hwise">Water insecurity</a>
+    <a href="#coping">Coping strategies</a>
+    <a href="#barriers">Access barriers</a>
+  </div>
+  <div class="filterbar">
+    <div class="filterbar__controls" id="filter-controls"></div>
+    <div class="filterbar__status">
+      <span id="filter-status">Showing all 23,736 households</span>
+      <button type="button" class="fbtn fbtn--reset" id="filter-reset" style="display:none;">Reset filters</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section id="coverage">
+    <div class="section__head">
+      <div class="section__eyebrow">Survey coverage</div>
+      <h2 class="section__title">Who was surveyed, and where</h2>
+      <p class="section__note"><span id="txt-cov-note">23,736 households across 18 states.</span> Figures below are household counts and shares of the survey sample.</p>
+    </div>
+    <div class="grid3">
+      <div class="card">
+        <div class="card__title">By location type</div>
+        <div class="card__meta" id="txt-loctype-meta">23,721 households classified</div>
+        <div class="barlist" id="chart-loctype" style="--label-w:96px"></div>
+      </div>
+      <div class="card">
+        <div class="card__title">By displacement group</div>
+        <div class="card__meta" id="txt-group-meta">23,736 households</div>
+        <div class="barlist" id="chart-group" style="--label-w:110px"></div>
+      </div>
+      <div class="card">
+        <div class="card__title">By sex of head of household</div>
+        <div class="card__meta" id="txt-sex-meta">23,736 households</div>
+        <div class="barlist" id="chart-sex" style="--label-w:70px"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <div class="card__title">Households surveyed by state / locality</div>
+      <div class="tabs" id="geo-tabs">
+        <button type="button" class="tab active" data-tab="state">By state</button>
+        <button type="button" class="tab" data-tab="locality">By locality</button>
+        <input type="text" class="chart-search" id="geo-search" placeholder="Search states…">
+      </div>
+      <div class="card__meta" id="txt-states-meta">sorted from most to fewest surveyed households</div>
+      <div class="barlist" id="chart-states" style="--label-w:118px"></div>
+      <div class="barlist barlist--scroll" id="chart-localities" style="--label-w:190px; display:none;"></div>
+    </div>
+  </section>
+
+  <section id="ladders">
+    <div class="section__head">
+      <div class="section__eyebrow">JMP service ladders</div>
+      <h2 class="section__title">Service levels against the JMP standard</h2>
+      <p class="section__note">Share of households at each Joint Monitoring Programme (JMP) service level for their main water source, sanitation facility, and handwashing facility.</p>
+    </div>
+    <div class="card">
+      <div class="stack" id="chart-ladders"></div>
+      <div class="legend" id="legend-ladders"></div>
+    </div>
+  </section>
+
+  <section id="hwise">
+    <div class="section__head">
+      <div class="section__eyebrow">HWISE-4</div>
+      <h2 class="section__title">Household water insecurity experience</h2>
+      <p class="section__note">Self-reported water insecurity in the 4 weeks before the survey, based on the 4 standard HWISE questions — a household-reported measure independent of the service ladd[...]
+    </div>
+    <div class="card">
+      <div class="card__title">How often each experience occurred</div>
+      <div class="card__meta" id="txt-hwise-meta">in the 4 weeks before the survey</div>
+      <div class="stack" id="chart-hwise-items" style="--label-w:230px; --label-w-sm:118px;"></div>
+      <div class="legend" id="legend-hwise-items"></div>
+      <p class="callout" id="hwise-callout">67.0% of households experienced at least one of these four issues in the past month. For most, it happened only <em>rarely</em> or <em>sometimes</em> rather[...]
+    </div>
+  </section>
+
+  <section id="coping">
+    <div class="section__head">
+      <div class="section__eyebrow">Coping strategies</div>
+      <h2 class="section__title">How households cope with a shortfall</h2>
+      <p class="section__note">Share of <span id="txt-coping-n">all 23,736</span> households reporting each strategy in the recall period.</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card__title" style="color:var(--water)">Water coping strategies</div>
+        <div class="barlist" id="chart-wcope" style="--label-w:220px"></div>
+      </div>
+      <div class="card">
+        <div class="card__title" style="color:var(--sanitation)">Sanitation coping strategies</div>
+        <div class="barlist" id="chart-scope" style="--label-w:220px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="barriers">
+    <div class="section__head">
+      <div class="section__eyebrow">Access barriers</div>
+      <h2 class="section__title">What stops households from meeting their needs</h2>
+      <p class="section__note">Top barriers cited among households that reported a difficulty in each sub-sector.</p>
+    </div>
+    <div class="grid3">
+      <div class="card">
+        <div class="card__title" style="color:var(--water)">Water</div>
+        <div class="card__meta" id="txt-bwater-meta">53.2% of households report a difficulty</div>
+        <div class="barlist" id="chart-bwater" style="--label-w:150px"></div>
+      </div>
+      <div class="card">
+        <div class="card__title" style="color:var(--sanitation)">Sanitation</div>
+        <div class="card__meta" id="txt-bsan-meta">31.7% of households report a difficulty</div>
+        <div class="barlist" id="chart-bsan" style="--label-w:150px"></div>
+      </div>
+      <div class="card">
+        <div class="card__title" style="color:var(--hygiene)">Hygiene (soap)</div>
+        <div class="card__meta" id="txt-bhyg-meta">56.9% of households report a difficulty</div>
+        <div class="barlist" id="chart-bhyg" style="--label-w:150px"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>Source:</strong> Multi-Sector Needs Assessment (MSNA), conducted July 2026, 23,736 households across 18 states.</p>
+    <p style="margin-top:.4rem;"><strong>About this report:</strong> a summary of the MSNA analysis results produced by the WASH Sector Sudan team, covering service ladders, water insecurity experienc[...]
+    <p style="margin-top:.4rem;"><strong>Bases:</strong> JMP ladders, coping strategies, HWISE-4 and barriers each use their own valid-response base out of 23,736 surveyed households; a small number o[...]
+    <p style="margin-top:.4rem;"><strong>Feedback:</strong> comments and questions are welcome &mdash; please contact Mohammed Abdelhafeez at <a href="mailto:mabdelhafeez@unicef.org" style="color:inhe[...]
+  </footer>
+</div>
+
+<script>
+(function(){
+  var DATA = {"states":["Aj Jazirah","Blue Nile","Central Darfur","East Darfur","Gedaref","Kassala","Khartoum","North Darfur","North Kordofan","Northern","Red Sea","River Nile","Sennar","South Darfur"[...]
